@@ -1,6 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { auth } from "@/auth";
 import { updateCardItem } from "../../actions";
 import CardForm from "@/components/inventory/card-form";
 
@@ -11,10 +14,27 @@ type PageProps = {
 };
 
 export default async function EditInventoryItemPage({ params }: PageProps) {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    redirect("/login");
+  }
+
+  const user = await db.user.findUnique({
+    where: { email: session.user.email.toLowerCase() },
+  });
+
+  if (!user) {
+    redirect("/login");
+  }
+
   const { id } = await params;
 
-  const item = await db.cardItem.findUnique({
-    where: { id },
+  const item = await db.cardItem.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
   });
 
   if (!item) {

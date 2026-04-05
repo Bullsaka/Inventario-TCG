@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { formatCurrencyFromCents } from "@/lib/calculations";
-import { deleteCardItem } from "@/app/inventory/actions";
+import ConfirmDeleteForm from "@/components/inventory/confirm-delete-form";
 
 type InventoryItem = {
   id: string;
@@ -219,8 +219,8 @@ export default function InventoryTable({ items }: InventoryTableProps) {
         const targetCell = inventorySheet[`J${excelRow}`];
         const imageCell = inventorySheet[`L${excelRow}`];
 
-        if (costCell) costCell.z = '#,##0';
-        if (targetCell) targetCell.z = '#,##0';
+        if (costCell) costCell.z = "#,##0";
+        if (targetCell) targetCell.z = "#,##0";
 
         if (imageCell && filteredItems[i]?.imageUrl) {
           imageCell.l = {
@@ -248,8 +248,9 @@ export default function InventoryTable({ items }: InventoryTableProps) {
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryRows);
       summarySheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
       summarySheet["!cols"] = [{ wch: 24 }, { wch: 18 }];
-      summarySheet["B8"].z = '#,##0';
-      summarySheet["B9"].z = '#,##0';
+
+      if (summarySheet["B8"]) summarySheet["B8"].z = "#,##0";
+      if (summarySheet["B9"]) summarySheet["B9"].z = "#,##0";
 
       const workbook = XLSX.utils.book_new();
       workbook.Props = {
@@ -418,33 +419,20 @@ export default function InventoryTable({ items }: InventoryTableProps) {
                   </td>
 
                   <td className="border-b border-zinc-800 px-4 py-3">{item.game}</td>
-
-                  <td className="border-b border-zinc-800 px-4 py-3 font-medium">
-                    {item.name}
-                  </td>
-
+                  <td className="border-b border-zinc-800 px-4 py-3 font-medium">{item.name}</td>
                   <td className="border-b border-zinc-800 px-4 py-3">{item.setName ?? "-"}</td>
-
                   <td className="border-b border-zinc-800 px-4 py-3">{item.cardNumber ?? "-"}</td>
-
                   <td className="border-b border-zinc-800 px-4 py-3">{item.rarity ?? "-"}</td>
-
                   <td className="border-b border-zinc-800 px-4 py-3">{item.language}</td>
-
                   <td className="border-b border-zinc-800 px-4 py-3">{item.condition}</td>
-
                   <td className="border-b border-zinc-800 px-4 py-3">{item.quantity}</td>
-
                   <td className="border-b border-zinc-800 px-4 py-3">
                     {formatCurrencyFromCents(item.purchasePriceCents)}
                   </td>
-
                   <td className="border-b border-zinc-800 px-4 py-3">
                     {formatCurrencyFromCents(item.targetSalePriceCents)}
                   </td>
-
                   <td className="border-b border-zinc-800 px-4 py-3">{item.stockStatus}</td>
-
                   <td className="border-b border-zinc-800 px-4 py-3">
                     <div className="flex gap-2">
                       <Link
@@ -454,15 +442,7 @@ export default function InventoryTable({ items }: InventoryTableProps) {
                         Editar
                       </Link>
 
-                      <form action={deleteCardItem}>
-                        <input type="hidden" name="id" value={item.id} />
-                        <button
-                          type="submit"
-                          className="rounded-md border border-red-500 px-3 py-1 text-xs text-red-400 hover:bg-red-950/40"
-                        >
-                          Eliminar
-                        </button>
-                      </form>
+                      <ConfirmDeleteForm id={item.id} />
                     </div>
                   </td>
                 </tr>

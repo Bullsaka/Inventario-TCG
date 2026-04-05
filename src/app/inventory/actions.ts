@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { auth } from "@/auth";
 
 function toCents(value: FormDataEntryValue | null) {
   const raw = String(value ?? "0").replace(",", ".").trim();
@@ -31,7 +32,28 @@ function toQuantity(value: FormDataEntryValue | null) {
   return num;
 }
 
+async function getCurrentUser() {
+  const session = await auth();
+  const email = session?.user?.email?.toLowerCase();
+
+  if (!email) {
+    redirect("/login");
+  }
+
+  const user = await db.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  return user;
+}
+
 export async function createCardItem(formData: FormData) {
+  const user = await getCurrentUser();
+
   const game = String(formData.get("game") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const cardNumber = String(formData.get("cardNumber") ?? "").trim();
@@ -50,18 +72,6 @@ export async function createCardItem(formData: FormData) {
   if (!game || !name) {
     throw new Error("Game y Name son obligatorios.");
   }
-
-  const demoEmail = "demo@local.dev";
-
-  const user = await db.user.upsert({
-    where: { email: demoEmail },
-    update: {},
-    create: {
-      email: demoEmail,
-      name: "Demo User",
-      passwordHash: "demo-not-used",
-    },
-  });
 
   await db.cardItem.create({
     data: {
@@ -89,6 +99,8 @@ export async function createCardItem(formData: FormData) {
 }
 
 export async function updateCardItem(formData: FormData) {
+  const user = await getCurrentUser();
+
   const id = String(formData.get("id") ?? "").trim();
   const game = String(formData.get("game") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
@@ -113,8 +125,19 @@ export async function updateCardItem(formData: FormData) {
     throw new Error("Game y Name son obligatorios.");
   }
 
+  const existing = await db.cardItem.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
+
+  if (!existing) {
+    redirect("/inventory");
+  }
+
   await db.cardItem.update({
-    where: { id },
+    where: { id: existing.id },
     data: {
       game,
       name,
@@ -138,15 +161,29 @@ export async function updateCardItem(formData: FormData) {
 }
 
 export async function deleteCardItem(formData: FormData) {
+  const user = await getCurrentUser();
+
   const id = String(formData.get("id") ?? "").trim();
 
   if (!id) {
-    throw new Error("ID inválido para eliminar.");
+    redirect("/inventory");
+  }
+
+  const existing = await db.cardItem.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
+
+  if (!existing) {
+    redirect("/inventory");
   }
 
   await db.cardItem.delete({
-    where: { id },
+    where: { id: existing.id },
   });
 
   revalidatePath("/inventory");
+  redirect("/inventory");
 }
