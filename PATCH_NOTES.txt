@@ -1,0 +1,30 @@
+TCG Inventory Manager - Patch files
+
+What this ZIP contains:
+- Replacement files for the MVP inventory flow
+- Prisma schema and config used in the earlier setup
+- Source files already organized in the correct folders
+
+How to use:
+1) Open your project root: C:\Users\Jere\tcg-inventory-manager
+2) Copy the contents of this ZIP into the project root
+3) Allow Windows / VS Code to replace files if asked
+4) Run these commands in PowerShell if npx is blocked:
+   & "C:\Program Files\nodejs\npx.cmd" prisma migrate dev --name init
+   & "C:\Program Files\nodejs\npx.cmd" prisma generate
+   & "C:\Program Files\nodejs\npm.cmd" run dev
+
+Expected structure:
+- prisma/schema.prisma
+- prisma.config.ts
+- src/lib/db.ts
+- src/lib/calculations.ts
+- src/app/page.tsx
+- src/app/inventory/actions.ts
+- src/app/inventory/page.tsx
+- src/app/inventory/new/page.tsx
+
+Notes:
+- This patch assumes your project was created with create-next-app using the src directory
+- This version uses SQLite via DATABASE_URL="file:./dev.db"
+- It uses a demo local user internally so you can test inventory without auth first

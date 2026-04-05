@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String?
+  email        String     @unique
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  cardItems    CardItem[]
+  purchases    Purchase[]
+  sales        Sale[]
+}
+
+model CardItem {
+  id                      String    @id @default(cuid())
+  userId                  String
+  game                    String
+  name                    String
+  cardNumber              String?
+  setName                 String?
+  rarity                  String?
+  language                String    @default("EN")
+  condition               String    @default("NM")
+  productType             String    @default("SINGLE")
+  quantity                Int       @default(1)
+  purchasePriceCents      Int
+  targetSalePriceCents    Int?
+  minAcceptablePriceCents Int?
+  imageUrl                String?
+  notes                   String?
+  stockStatus             String    @default("IN_STOCK")
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purchases Purchase[]
+  sales     Sale[]
+
+  @@index([userId])
+  @@index([game])
+  @@index([name])
+  @@index([setName])
+  @@index([stockStatus])
+}
+
+model Purchase {
+  id             String   @id @default(cuid())
+  userId         String
+  cardItemId     String
+  source         String?
+  quantity       Int      @default(1)
+  unitCostCents  Int
+  totalCostCents Int
+  purchasedAt    DateTime
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardItem CardItem @relation(fields: [cardItemId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([cardItemId])
+}
+
+model Sale {
+  id                String   @id @default(cuid())
+  userId            String
+  cardItemId        String
+  channel           String   @default("OTHER")
+  quantity          Int      @default(1)
+  salePriceCents    Int
+  feeCents          Int      @default(0)
+  shippingCostCents Int      @default(0)
+  netProfitCents    Int
+  soldAt            DateTime
+  notes             String?
+  createdAt         DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardItem CardItem @relation(fields: [cardItemId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([cardItemId])
+}

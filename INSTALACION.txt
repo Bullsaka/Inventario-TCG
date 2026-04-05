@@ -1,0 +1,8 @@
+Reemplaza este archivo:
+- src/components/inventory/inventory-table.tsx
+
+Si no tienes la dependencia instalada:
+- npm install xlsx
+
+Luego reinicia:
+- npm run dev
