@@ -1,0 +1,50 @@
+REEMPLAZO COMPLETO — MIGRACIÓN A POSTGRES + DEPLOY
+
+Este paquete está pensado para reemplazar los archivos activos del proyecto y dejarlo listo para usar una base Postgres externa (por ejemplo Neon) y desplegar en Vercel.
+
+Incluye:
+- src completo y limpio
+- package.json actualizado para Postgres
+- prisma/schema.prisma en PostgreSQL
+- prisma.config.ts correcto
+- .env.example
+
+No incluye:
+- package-lock.json (elimínalo y deja que npm lo regenere)
+- middleware.ts (queda fuera a propósito, porque tu app ya está protegida desde páginas/acciones)
+
+Pasos recomendados
+1. Reemplaza estos archivos desde la raíz del proyecto.
+
+3. Crea tu .env a partir de .env.example y completa:
+   - DATABASE_URL
+   - AUTH_SECRET
+
+4. Instala dependencias:
+   npm install
+
+5. Genera Prisma y crea el esquema en Postgres:
+   npx prisma generate
+   npx prisma db push
+
+6. Prueba localmente:
+   npm run dev
+
+7. Sube a GitHub y despliega en Vercel.
+   En Vercel configura las mismas variables:
+   - DATABASE_URL
+   - AUTH_SECRET
+
+Nota sobre los datos
+- Este cambio no migra automáticamente tu antigua base SQLite.
+- Este paquete crea la estructura en Postgres limpia.
+- Si quieres traspasar tus datos viejos, eso se hace como paso aparte.
+
+Validación mínima antes de compartir la URL
+- register
+- login
+- crear carta
+- editar carta
+- eliminar carta
+- exportar Excel
+- logout

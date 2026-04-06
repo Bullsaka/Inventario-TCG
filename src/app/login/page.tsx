@@ -46,6 +46,12 @@ export default function LoginPage() {
         </p>
       </div>
 
+      {searchParams.get("reset") === "1" ? (
+        <div className="mb-4 rounded-xl border border-emerald-800 bg-emerald-950/40 p-4 text-sm text-emerald-200">
+          Tu contraseña fue actualizada. Ya puedes iniciar sesión.
+        </div>
+      ) : null}
+
       <form
         onSubmit={onSubmit}
         className="space-y-4 rounded-xl border border-zinc-800 p-6"
@@ -56,6 +62,7 @@ export default function LoginPage() {
             name="email"
             type="email"
             required
+            autoComplete="email"
             className="w-full rounded-md border border-zinc-700 bg-black px-3 py-2 text-white"
           />
         </div>
@@ -66,6 +73,7 @@ export default function LoginPage() {
             name="password"
             type="password"
             required
+            autoComplete="current-password"
             className="w-full rounded-md border border-zinc-700 bg-black px-3 py-2 text-white"
           />
         </div>
@@ -84,12 +92,18 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="mt-4 text-sm text-zinc-400">
-        ¿No tienes cuenta?{" "}
-        <Link href="/register" className="text-white underline">
-          Regístrate
+      <div className="mt-4 flex flex-col gap-2 text-sm text-zinc-400">
+        <Link href="/forgot-password" className="text-white underline">
+          ¿Olvidaste tu contraseña?
         </Link>
-      </p>
+
+        <p>
+          ¿No tienes cuenta?{" "}
+          <Link href="/register" className="text-white underline">
+            Regístrate
+          </Link>
+        </p>
+      </div>
     </main>
   );
 }
